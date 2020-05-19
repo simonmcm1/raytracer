@@ -1,9 +1,9 @@
-CC = g++
+CXX = g++
 
 # compiler flags:
 #  -g    adds debugging information to the executable file
 #  -Wall turns on most, but not all, compiler warnings
-CFLAGS  = -g -Wall
+CXXFLAGS  = -g -Wall -std=c++11
 INCLUDES = -I../include
 
 SRCS = main.cpp
@@ -25,7 +25,7 @@ all:    $(MAIN)
 		@echo  Complete
 
 $(MAIN): $(OBJS) 
-		$(CC) $(CFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
+		$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
 
 # this is a suffix replacement rule for building .o's from .c's
 # it uses automatic variables $<: the name of the prerequisite of
