@@ -7,14 +7,14 @@
 #include <iostream>
 #include <vector>
 
-using std::sqrt;
+#include "math.h"
 
 class Image {
     public:
         Image(int w, int h) : width(w), height(h) {
             img.reserve(width * height * BYTES_PER_PIXEL);
         }
-        void SetPixel(int x, int y, float3 color) {
+        void SetPixel(int x, int y, const float3 &color) {
             int index = (x + y * width) * BYTES_PER_PIXEL;
             img[index] = static_cast<uint8_t>(color.x() * 255.0);
             img[index + 1] = static_cast<uint8_t>(color.y() * 255.0);

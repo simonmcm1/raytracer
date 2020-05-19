@@ -97,4 +97,23 @@ inline float3 normalized(float3 v) {
     return v / v.length();
 }
 
+inline float saturate(float t) {
+    if(t < 0) {
+        return 0;
+    }
+    if(t > 1) {
+        return 1;
+    }
+    return t;
+}
+
+inline float lerp(float a, float b, float t) {
+    t = saturate(t);
+    return a + (b - a) * t;
+}
+
+inline float3 lerp(const float3& a, const float3 &b, float t) {
+    return float3(lerp(a.x(), b.x(), t), lerp(a.y(), b.y(), t), lerp(a.z(), b.z(), t));
+}
+
 #endif
