@@ -6,7 +6,7 @@ CXX = g++
 CXXFLAGS  = -g -Wall -std=c++11
 INCLUDES = -I../include
 
-SRCS = main.cpp geometry.cpp
+SRCS = main.cpp geometry.cpp material.cpp spatial.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 

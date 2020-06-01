@@ -3,8 +3,26 @@
 
 #include <cmath>
 #include <iostream>
+#include <random>
 
 using std::sqrt;
+
+inline float randomf() {
+    static std::uniform_real_distribution<float> distribution(0.0, 1.0);
+    static std::mt19937 generator;
+    return distribution(generator);
+}
+
+inline float randomf(float min, float max) {
+    return min + (max-min)*randomf();
+}
+
+inline int randomi(int min, int max) {
+    return round(min + (max-min)*randomf());
+}
+
+const float PI = 3.14159265359f;
+const float DEG_TO_RAD = 0.01745329252;
 
 class float3 {
     public:
@@ -45,12 +63,22 @@ class float3 {
             return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
         }
 
+        inline static float3 Random() {
+            return float3(randomf(), randomf(), randomf());
+        }
+
+        inline static float3 Random(float min, float max) {
+            return float3(randomf(min, max), randomf(min, max), randomf(min, max));
+        }
+
     public:
         float e[3];
 };
 
 // Type aliases for float3
 using color = float3;
+using point3 = float3;
+using vec3 = float3;
 
 // float3 Utility Functions
 inline std::ostream& operator<<(std::ostream &out, const float3 &v) {
@@ -116,4 +144,57 @@ inline float3 lerp(const float3& a, const float3 &b, float t) {
     return float3(lerp(a.x(), b.x(), t), lerp(a.y(), b.y(), t), lerp(a.z(), b.z(), t));
 }
 
+
+//TODO: use proper polar coord random
+inline float3 randomInUnitSphere() {
+    while(true) {
+        auto p = float3::Random(-1, 1);
+        if(p.squareMagnitude() >=1 ) {
+            continue;
+        }
+        return p;
+    }
+}
+
+inline float3 randomOnUnitSphereSurface() {
+    auto a = randomf(0, 2*PI);
+    auto z = randomf(-1, 1);
+    auto r = sqrt(1 - z*z);
+    return float3(r*cos(a), r*sin(a), z);
+}
+
+inline float3 randomInUnitHemisphere(const float3& N) {
+    float3 rand = randomInUnitSphere();
+    if (dot(rand, N) > 0.0) 
+        return rand;
+    else
+        return -rand;
+}
+
+inline float3 randomOnUnitDisk() {
+    while (true) {
+        auto p = float3(randomf(-1,1), randomf(-1,1), 0);
+        if (p.squareMagnitude() >= 1) continue;
+        return p;
+    }
+}
+
+//from cg reference implementation
+inline float3 reflect( const float3 &i, const float3 &n ){
+  return i - 2.0 * n * dot(n,i);
+}
+//from cg reference implementation
+inline float3 refract( const float3 &i, const float3 &n, float eta ) {
+  float cosi = dot(-i, n);
+  float cost2 = 1.0f - eta * eta * (1.0f - cosi*cosi);
+  float3 t = eta*i + ((eta*cosi - sqrt(abs(cost2))) * n);
+  float dir = cost2 > 0;
+  return t * float3(dir, dir, dir);
+}
+
+inline float schlick(float cos, float refIndex) {
+    auto r0 = (1-refIndex) / (1+refIndex);
+    r0 = r0*r0;
+    return r0 + (1-r0)*pow((1 - cos),5);
+}
 #endif
