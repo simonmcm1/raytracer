@@ -1,8 +1,14 @@
 #include "spatial.h"
 #include <algorithm>
 
+int randomAxis() {
+    static std::mt19937 generator;
+    static std::uniform_int_distribution<> dis(0, 2);
+    return dis(generator);
+}
+
 BVHNode::BVHNode(std::vector<shared_ptr<Hittable>>& objects, size_t start, size_t end) {
-    int axis = randomi(0,2);
+    int axis = randomAxis();
     auto comparator = (axis == 0) ? boxCompareX
                     : (axis == 1) ? boxCompareY
                                   : boxCompareZ;

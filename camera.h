@@ -24,8 +24,8 @@ class Camera {
             bottomLeft = origin - horizontal/2 - vertical/2 - focusDistance * w;
         }
 
-        Ray GetRay(float s, float t) const {
-            float3 offsetAmount = randomOnUnitDisk() * aperture/2;
+        Ray GetRay(Random &rand, float s, float t) const {
+            float3 offsetAmount = rand.randomOnUnitDisk() * aperture/2;
             float3 offset = u*offsetAmount.x() + v*offsetAmount.y();
             return Ray(origin + offset, bottomLeft + s*horizontal + t*vertical - origin - offset);
         }
