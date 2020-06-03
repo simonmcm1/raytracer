@@ -87,6 +87,10 @@ inline float3 operator/(float3 v, float t) {
     return (1/t) * v;
 }
 
+inline float distance(const float3 &a, const float3 &b) {
+    return (a - b).length();
+}
+
 inline double dot(const float3 &u, const float3 &v) {
     return u.e[0] * v.e[0]
          + u.e[1] * v.e[1]

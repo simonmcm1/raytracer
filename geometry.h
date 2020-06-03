@@ -48,5 +48,20 @@ class Sphere : public Hittable {
         shared_ptr<Material> material;
 };
 
+class XYRect: public Hittable {
+    public:
+        XYRect() {}
+
+        XYRect(float _x0, float _x1, float _y0, float _y1, float _k, shared_ptr<Material> mat)
+            : x0(_x0), x1(_x1), y0(_y0), y1(_y1), k(_k), material(mat) {};
+
+        virtual bool Intersects(const Ray& ray, double tmin, double tmax, RayHit& hit) const;
+        virtual bool GetBounds(Bounds &bounds) const;
+        virtual ~XYRect(){}
+
+    public:
+        double x0, x1, y0, y1, k;
+        shared_ptr<Material> material;
+};
 
 #endif

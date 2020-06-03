@@ -21,6 +21,7 @@ float3 ColorFromNormal(const float3 &N) {
 }
 
 float3 background(const Ray& ray) {
+    return float3(0,0,0);
     float3 direction = normalized(ray.direction());
     float yinterp = (direction.y() + 1.0)/2.0;
     return lerp(float3(1.0, 1.0, 1.0), float3(0.5, 0.7, 1.0), yinterp);
@@ -30,26 +31,28 @@ float3 TraceRay(const Ray& ray, Random &rand, const Hittable &scene, int depth) 
     if(depth <= 0) {
         return float3(0,0,0);
     }
-    RayHit h;
-    if(scene.Intersects(ray, 0.001, 10000, h)) {
-        Ray bounce;
-        float3 atten;
-        if(h.material->Scatter(ray, rand, h, atten, bounce)) {
-            return atten * TraceRay(bounce, rand, scene, depth - 1);
-        } else {
-            return float3(0,0,0);
-        }
-    } 
 
-    return background(ray);   
+    RayHit h;
+    if(!scene.Intersects(ray, 0.001, 10000, h)) {
+        return background(ray);
+    }
+
+    Ray bounce;
+    float3 atten;
+    float3 emission = h.material->Emit(h.uv.x(), h.uv.y(), h.point);
+    if(h.material->Scatter(ray, rand, h, atten, bounce)) {
+        return emission + atten * TraceRay(bounce, rand, scene, depth - 1);
+    }
+    
+    return emission;
 }
 
 class RayTracer {
     public:
 
     RayTracer(int w, int h, const Camera &cam, Image &img, BVHNode &bvh) : width(w), height(h), camera(cam), image(img), scene(bvh) {
-        samples = 10;
-        maxBounces = 5;
+        samples = 100;
+        maxBounces = 50;
     };
 
     void Render(int x0, int x1, int y0, int y1) {

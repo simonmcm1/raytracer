@@ -9,6 +9,7 @@
 #include "camera.h"
 #include "spatial.h"
 #include "raytracer.h"
+#include "texture.h"
 
 using namespace std;
 
@@ -23,14 +24,32 @@ void Render(RayTracer &rt, int x0, int x1, int y0, int y1) {
     std::cerr << "Finished " << y0 << " to " << y1 << endl;
 }
 
+HittableList simple_light() {
+    HittableList objects;
+
+    float3 check1(0.2, 0.3, 0.1);
+    float3 check2(0.9, 0.9, 0.9);
+    auto ground_material = make_shared<lambertian>(make_shared<WorldSpaceChecker>(check1, check2, 1.0));
+
+    auto color = make_shared<SolidColor>(0.4, 0.4, 1);
+    objects.Add(make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
+    objects.Add(make_shared<sphere>(point3(0,2,0), 2, make_shared<lambertian>(color)));
+
+    auto difflight = make_shared<EmissiveMat>(make_shared<SolidColor>(4,4,4));
+    //objects.Add(make_shared<sphere>(point3(0,7,0), 2, difflight));
+    objects.Add(make_shared<XYRect>(3, 5, 1, 3, -2, difflight));
+
+    return objects;
+}
+
 int main() {
     const string outputFile = "out.tga";
     const int width = 640;
     const int height = 360;
     Image img(width, height);
 
-point3 lookfrom(13,2,3);
-point3 lookat(0,0,0);
+point3 lookfrom(23,8,17);
+point3 lookat(0,2,0);
 vec3 vup(0,1,0);
 auto dist_to_focus = 10.0;
 auto aperture = 0.0;
@@ -44,8 +63,9 @@ Random rand;
     scene.Add(make_shared<Sphere>(float3(-1,0,-1), 0.5, make_shared<MetalMat>(float3(.8,.8,.8), 1.0)));
 */
 
-
-    auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
+    float3 check1(0.2, 0.3, 0.1);
+    float3 check2(0.9, 0.9, 0.9);
+    auto ground_material = make_shared<lambertian>(make_shared<WorldSpaceChecker>(check1, check2, 1.0));
     scene.Add(make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
 
     for (int a = -5; a < 5; a++) {
@@ -59,13 +79,13 @@ Random rand;
                 if (choose_mat < 0.8) {
                     // diffuse
                     auto albedo = rand.randomVector() * rand.randomVector();
-                    sphere_material = make_shared<lambertian>(albedo);
+                    sphere_material = make_shared<lambertian>(make_shared<SolidColor>(albedo));
                     scene.Add(make_shared<sphere>(center, 0.2, sphere_material));
                 } else if (choose_mat < 0.95) {
                     // metal
                     auto albedo = rand.randomVector(0.5, 1);
                     auto fuzz = rand.randomf(0, 0.5);
-                    sphere_material = make_shared<metal>(albedo, fuzz);
+                    sphere_material = make_shared<metal>(make_shared<SolidColor>(albedo), fuzz);
                     scene.Add(make_shared<sphere>(center, 0.2, sphere_material));
                 } else {
                     // glass
@@ -80,12 +100,15 @@ Random rand;
     auto material1 = make_shared<dielectric>(1.5);
     scene.Add(make_shared<sphere>(point3(0, 1, 0), 1.0, material1));
 
-    auto material2 = make_shared<lambertian>(color(0.4, 0.2, 0.1));
+    auto material2 = make_shared<lambertian>(make_shared<SolidColor>(0.4, 0.2, 0.1));
     scene.Add(make_shared<sphere>(point3(-4, 1, 0), 1.0, material2));
 
-    auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
+    auto material3 = make_shared<metal>(make_shared<SolidColor>(0.7, 0.6, 0.5), 0.0);
     scene.Add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
     
+    //light
+    scene = simple_light();
+
     BVHNode bvh(scene);
     RayTracer rt(width, height, camera, img, bvh);
     

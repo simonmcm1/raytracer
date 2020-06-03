@@ -14,6 +14,7 @@ struct RayHit {
     float3 normal;
     float t;
     bool frontFace;
+    float3 uv;
     std::shared_ptr<Material> material;
 
     inline void SetNormalAndFrontFace(const Ray &ray, const float3 &surfaceNormal) {

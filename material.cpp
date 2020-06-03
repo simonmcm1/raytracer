@@ -4,14 +4,14 @@
 bool LambertMat::Scatter(const Ray& rIn, Random &rand, const RayHit& hit, float3& attenuation, Ray& rOut) const {
     float3 scatterDir = rand.randomInUnitHemisphere(hit.normal);
     rOut = Ray(hit.point, scatterDir);
-    attenuation = this->alb;
+    attenuation = this->alb->Read(hit.uv.x(), hit.uv.y(), hit.point);
     return true;
 }
 
 bool MetalMat::Scatter(const Ray& rIn, Random &rand, const RayHit& hit, float3& attenuation, Ray& rOut) const {
     float3 reflectDir = reflect(normalized(rIn.direction()), hit.normal);
     rOut = Ray(hit.point, reflectDir + this->rough * rand.randomInUnitSphere());
-    attenuation = alb;
+    attenuation = this->alb->Read(hit.uv.x(), hit.uv.y(), hit.point);
     return (dot(rOut.direction(), hit.normal) > 0);
 }
 
